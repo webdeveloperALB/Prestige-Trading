@@ -49,7 +49,6 @@ export function Navbar({ locale }: NavbarProps) {
       href: "https://www.instagram.com/trading_prestige_academy?igsh=ampmYnF1NG44MWJy",
       label: "Instagram",
     },
-    { icon: TwitterIcon, href: "#", label: "Twitter" },
   ];
 
   const tickerItems = [
