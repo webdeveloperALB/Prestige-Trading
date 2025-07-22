@@ -100,7 +100,7 @@ export function Navbar({ locale }: NavbarProps) {
                 className="flex items-center space-x-2"
                 aria-label="Go to homepage"
               >
-                <div className="mb-2 sm:mb-4 w-32 sm:w-48 lg:w-64 h-16 sm:h-24 lg:h-32 relative">
+                <div className="mb-2 sm:mb-4 w-32 sm:w-48 lg:w-64 h-16 sm:h-24 lg:h-32 relative pt-8">
                   <Image
                     src="/logos/PTArtboard 3.png"
                     alt="WhiteRock24 logo"
