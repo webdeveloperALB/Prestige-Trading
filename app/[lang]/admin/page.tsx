@@ -6,8 +6,8 @@ import { toast, Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 // Authentication constants
-const ADMIN_USERNAME = "WhiteeRockk24";
-const ADMIN_PASSWORD = "Cobra.192837465";
+const ADMIN_USERNAME = "Prestige";
+const ADMIN_PASSWORD = "Prestige";
 
 // Type definitions
 interface BlogPost {
