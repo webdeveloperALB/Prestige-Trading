@@ -43,7 +43,11 @@ export function Navbar({ locale }: NavbarProps) {
   ];
 
   const socials = [
-    { icon: Facebook, href: "#", label: "Facebook" },
+    {
+      icon: Facebook,
+      href: "https://www.facebook.com/people/Prestige-AI-Trading/61578351041253/",
+      label: "Facebook",
+    },
     {
       icon: Instagram,
       href: "https://www.instagram.com/trading_prestige_academy?igsh=ampmYnF1NG44MWJy",
