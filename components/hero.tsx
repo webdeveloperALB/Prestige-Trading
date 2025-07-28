@@ -1,22 +1,31 @@
-"use client"
-import { useState, useEffect, useRef, useCallback } from "react"
-import { ArrowRight, TrendingUp, Users, Award, BarChart3, Lock, Zap, Target } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { translations, type Locale } from "@/lib/translations"
+"use client";
+import { useState, useEffect, useRef, useCallback } from "react";
+import {
+  ArrowRight,
+  TrendingUp,
+  Users,
+  Award,
+  BarChart3,
+  Lock,
+  Zap,
+  Target,
+} from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { translations, type Locale } from "@/lib/translations";
 
 interface HeroProps {
-  locale: Locale
+  locale: Locale;
 }
 
 export function Hero({ locale }: HeroProps) {
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [activeMetric, setActiveMetric] = useState(0)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const isMountedRef = useRef(true)
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [activeMetric, setActiveMetric] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isMountedRef = useRef(true);
 
-  const t = translations[locale]
+  const t = translations[locale];
 
   // Memoize trust metrics to prevent recreation on every render
   const trustMetrics = useCallback(
@@ -46,8 +55,8 @@ export function Hero({ locale }: HeroProps) {
         icon: Award,
       },
     ],
-    [t.hero.metrics],
-  )
+    [t.hero.metrics]
+  );
 
   // Memoize premium features to prevent recreation
   const premiumFeatures = useCallback(
@@ -74,62 +83,62 @@ export function Hero({ locale }: HeroProps) {
         gradient: "from-red-500/20 to-red-500/20",
       },
     ],
-    [t.hero.features],
-  )
+    [t.hero.features]
+  );
 
   // Optimized cleanup function
   const cleanup = useCallback(() => {
     if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-      timeoutRef.current = null
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
     }
     if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-      intervalRef.current = null
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
-  }, [])
+  }, []);
 
   // Optimized animation setup
   useEffect(() => {
-    isMountedRef.current = true
+    isMountedRef.current = true;
     // Immediate load state for better UX
     const loadTimer = setTimeout(() => {
       if (isMountedRef.current) {
-        setIsLoaded(true)
+        setIsLoaded(true);
       }
-    }, 100)
+    }, 100);
 
     // Stable metric cycling with proper cleanup
     const startCycling = () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
+      if (intervalRef.current) clearInterval(intervalRef.current);
       intervalRef.current = setInterval(() => {
         if (isMountedRef.current) {
-          setActiveMetric((prev) => (prev + 1) % 4)
+          setActiveMetric((prev) => (prev + 1) % 4);
         }
-      }, 3000)
-    }
+      }, 3000);
+    };
 
     // Start cycling after component is loaded
-    const cycleTimer = setTimeout(startCycling, 500)
-    timeoutRef.current = loadTimer
+    const cycleTimer = setTimeout(startCycling, 500);
+    timeoutRef.current = loadTimer;
 
     return () => {
-      isMountedRef.current = false
-      clearTimeout(loadTimer)
-      clearTimeout(cycleTimer)
-      cleanup()
-    }
-  }, [cleanup])
+      isMountedRef.current = false;
+      clearTimeout(loadTimer);
+      clearTimeout(cycleTimer);
+      cleanup();
+    };
+  }, [cleanup]);
 
   // Prevent state updates after unmount
   useEffect(() => {
     return () => {
-      isMountedRef.current = false
-    }
-  }, [])
+      isMountedRef.current = false;
+    };
+  }, []);
 
-  const metrics = trustMetrics()
-  const features = premiumFeatures()
+  const metrics = trustMetrics();
+  const features = premiumFeatures();
 
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-r from-[#000a12] to-[#02141f] overflow-hidden pt-24">
@@ -182,7 +191,13 @@ export function Hero({ locale }: HeroProps) {
         <div className="mb-0">
           <div className="w-full sm:max-w-xl ml-0 sm:ml-0 md:ml-0 lg:ml-0 xl:ml-0 flex flex-col sm:flex-row items-center justify-start px-6 sm:px-8 pt-8 bg-white/8 backdrop-blur-md hover:bg-white/12 transition-all duration-500">
             <div className="flex items-center space-x-3 text-white scale-110">
-              <Image src="/trustpilot.svg" alt="Trustpilot" width={260} height={260} className="object-contain" />
+              <Image
+                src="/trustpilot.svg"
+                alt="Trustpilot"
+                width={260}
+                height={260}
+                className="object-contain"
+              />
             </div>
           </div>
         </div>
@@ -202,7 +217,9 @@ export function Hero({ locale }: HeroProps) {
                   >
                     {t.hero.subtitle}
                   </span>
-                  <p className="text-xl text-gray-300 mb-8 leading-relaxed">"{t.hero.description}"</p>
+                  <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+                    "{t.hero.description}"
+                  </p>
                 </h1>
                 {/* --- CTA Buttons --- */}
                 <div className="space-y-8">
@@ -219,9 +236,9 @@ export function Hero({ locale }: HeroProps) {
                   </div>
                 </div>
               </div>
-              {/* --- Right Side: Larger Image --- */}
+              {/* --- Right Side: Image --- */}
               <div className="lg:w-[70%] flex justify-end">
-                <div className="relative w-full max-w-none rounded-3xl shadow-2xl backdrop-blur-sm overflow-hidden pt-10 pb-4">
+                <div className="relative w-full max-w-none rounded-3xl shadow-2xl backdrop-blur-sm overflow-hidden pt-10 pb-4 -mt-16">
                   <Image
                     src="/platform.png"
                     alt="Platform Showcase"
@@ -243,8 +260,8 @@ export function Hero({ locale }: HeroProps) {
           {/* --- Optimized Performance Metrics --- */}
           <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 max-w-6xl py-10">
             {metrics.map((metric, index) => {
-              const IconComponent = metric.icon
-              const isActive = activeMetric === index
+              const IconComponent = metric.icon;
+              const isActive = activeMetric === index;
               return (
                 <div
                   key={`metric-${index}-${metric.label}`}
@@ -257,7 +274,9 @@ export function Hero({ locale }: HeroProps) {
                   <div className="flex justify-center mb-3 sm:mb-4">
                     <div
                       className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-all duration-300 transform-gpu ${
-                        isActive ? "scale-110" : "bg-white/10 group-hover:bg-white/20"
+                        isActive
+                          ? "scale-110"
+                          : "bg-white/10 group-hover:bg-white/20"
                       }`}
                     >
                       <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -266,10 +285,14 @@ export function Hero({ locale }: HeroProps) {
                   <div className="text-2xl sm:text-3xl font-bold text-white mb-1 sm:mb-2 group-hover:text-green-400 transition-colors duration-300">
                     {metric.value}
                   </div>
-                  <div className="text-sm sm:text-base font-semibold text-gray-300 mb-1">{metric.label}</div>
-                  <div className="text-xs sm:text-sm text-gray-500">{metric.sublabel}</div>
+                  <div className="text-sm sm:text-base font-semibold text-gray-300 mb-1">
+                    {metric.label}
+                  </div>
+                  <div className="text-xs sm:text-sm text-gray-500">
+                    {metric.sublabel}
+                  </div>
                 </div>
-              )
+              );
             })}
           </div>
           {/* --- Professional Trust Footer --- */}
@@ -295,5 +318,5 @@ export function Hero({ locale }: HeroProps) {
         </div>
       </div>
     </section>
-  )
+  );
 }

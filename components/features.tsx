@@ -1,17 +1,17 @@
-"use client"
-import { TrendingUp, Bitcoin, Cpu } from "lucide-react"
-import Lottie from "lottie-react"
-import { useRouter } from "next/navigation"
-import { translations, type Locale } from "@/lib/translations"
-import animationData from "./animacion1.json"
+"use client";
+import { TrendingUp, Bitcoin, Cpu } from "lucide-react";
+import Lottie from "lottie-react";
+import { useRouter } from "next/navigation";
+import { translations, type Locale } from "@/lib/translations";
+import animationData from "./animacion1.json";
 
 interface FeaturesProps {
-  locale: Locale
+  locale: Locale;
 }
 
 export function Features({ locale }: FeaturesProps) {
-  const router = useRouter()
-  const t = translations[locale]
+  const router = useRouter();
+  const t = translations[locale];
 
   const features = [
     {
@@ -31,22 +31,27 @@ export function Features({ locale }: FeaturesProps) {
       title: t.features.services.cryptoSignals.title,
       description: t.features.services.cryptoSignals.description,
     },
-  ]
+  ];
 
   const handleFeatureClick = (feature: any) => {
     if (feature.clickable && feature.href) {
-      router.push(feature.href)
+      router.push(feature.href);
     }
-  }
+  };
 
   return (
     <section className="py-20 bg-gradient-to-r from-[#000a12] to-[#02141f]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#9ac5ff] via-[#c4e0ff] to-[#eaf7ff] bg-clip-text text-transparent font-bold mb-4">
-            {t.features.title} <span className="text-white font-bold">{t.features.titleHighlight}</span>
+            {t.features.title}{" "}
+            <span className="text-white font-bold">
+              {t.features.titleHighlight}
+            </span>
           </h2>
-          <p className="text-gray-300 text-lg max-w-2xl mx-auto">{t.features.subtitle}</p>
+          <p className="text-gray-300 text-lg max-w-2xl mx-auto">
+            {t.features.subtitle}
+          </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Features */}
@@ -54,8 +59,10 @@ export function Features({ locale }: FeaturesProps) {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className={`glass-effect rounded-xl p-6 hover:bg-blue-500/20 transition-all duration-300 group ${
-                  feature.clickable ? "cursor-pointer hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20" : ""
+                className={`bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6 hover:bg-blue-500/30 transition-all duration-300 group ${
+                  feature.clickable
+                    ? "cursor-pointer hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20"
+                    : ""
                 }`}
                 onClick={() => handleFeatureClick(feature)}
               >
@@ -72,7 +79,9 @@ export function Features({ locale }: FeaturesProps) {
                         </span>
                       )}
                     </h3>
-                    <p className="text-gray-400 leading-relaxed">{feature.description}</p>
+                    <p className="text-gray-400 leading-relaxed">
+                      {feature.description}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -81,11 +90,15 @@ export function Features({ locale }: FeaturesProps) {
           {/* Right Column - Lottie Globe */}
           <div className="flex justify-center items-center">
             <div className="w-full max-w-lg h-[500px] bg-transparent rounded-2xl flex items-center justify-center backdrop-blur-md">
-              <Lottie animationData={animationData} loop className="w-[250px] h-[250px] scale-[2] bg-transparent" />
+              <Lottie
+                animationData={animationData}
+                loop
+                className="w-[250px] h-[250px] scale-[2] bg-transparent"
+              />
             </div>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }

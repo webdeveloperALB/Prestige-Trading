@@ -55,10 +55,10 @@ const Footer: React.FC<FooterProps> = ({ locale }) => {
   ]
 
   const legalLinks = [
-    { name: t.footer.legalLinks.privacyPolicy, href: `/${locale}/signup` },
-    { name: t.footer.legalLinks.termsOfUse, href: `/${locale}/signup` },
-    { name: t.footer.legalLinks.security, href: `/${locale}/signup` },
-    { name: t.footer.legalLinks.compliance, href: `/${locale}/signup` },
+    { name: t.footer.legalLinks.privacyPolicy, href: `/${locale}/privacypolicy` },
+    { name: t.footer.legalLinks.termsOfUse, href: `/${locale}/termsofuse` },
+    { name: t.footer.legalLinks.security, href: `/${locale}/security` },
+    { name: t.footer.legalLinks.compliance, href: `/${locale}/compliance` },
   ]
 
   return (
