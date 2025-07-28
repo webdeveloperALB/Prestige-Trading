@@ -7,7 +7,6 @@ import {
   TrendingUp,
   Facebook,
   Instagram,
-  TwitterIcon,
   Shield,
   Award,
   Users,
@@ -28,7 +27,37 @@ export function Navbar({ locale }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentPath, setCurrentPath] = useState("/");
 
-  const t = translations[locale];
+  // Add fallback handling for translations
+  const t = translations[locale] ||
+    translations["en"] || {
+      nav: {
+        home: "Home",
+        about: "About",
+        services: "Services",
+        subscriptionTiers: "Subscription Tiers",
+        university: "University",
+        startTrading: "Start Trading",
+      },
+      ticker: {
+        secRegulated: "SEC Regulated",
+        awardWinning: "Award Winning",
+        activeTraders: "Active Traders",
+        expertSupport: "Expert Support",
+        successRate: "Success Rate",
+        bankSecurity: "Bank Security",
+        zeroCommission: "Zero Commission",
+        trustedBy: "Trusted By",
+        fastExecution: "Fast Execution",
+        aiAlgorithms: "AI Algorithms",
+      },
+    };
+
+  // Add debug logging to help identify the issue
+  if (typeof window !== "undefined") {
+    console.log("Current locale:", locale);
+    console.log("Available translations:", Object.keys(translations));
+    console.log("Translation for locale:", translations[locale]);
+  }
 
   useEffect(() => {
     setCurrentPath(pathname ?? "/");
@@ -109,7 +138,9 @@ export function Navbar({ locale }: NavbarProps) {
                     alt="WhiteRock24 logo"
                     width={240}
                     height={96}
+                    priority={true}
                     className="object-cover w-full h-full"
+                    sizes="(max-width: 640px) 128px, (max-width: 1024px) 192px, 240px"
                   />
                 </div>
               </button>

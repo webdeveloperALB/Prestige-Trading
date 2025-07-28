@@ -1,35 +1,43 @@
-"use client"
-import { useRouter, usePathname } from "next/navigation"
-import { useState } from "react"
-import { ChevronDown, Globe } from "lucide-react"
+"use client";
+import { useRouter, usePathname } from "next/navigation";
+import { useState } from "react";
+import { ChevronDown, Globe } from "lucide-react";
 
 const languages = [
   { code: "en", name: "English", flag: "🇺🇸" },
   { code: "it", name: "Italiano", flag: "🇮🇹" },
   { code: "de", name: "Deutsch", flag: "🇩🇪" },
-]
+];
 
 interface LanguageSwitcherProps {
-  currentLocale: string
+  currentLocale: string;
 }
 
 export function LanguageSwitcher({ currentLocale }: LanguageSwitcherProps) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
 
-  const currentLanguage = languages.find((lang) => lang.code === currentLocale) || languages[0]
+  const currentLanguage =
+    languages.find((lang) => lang.code === currentLocale) || languages[0];
 
   const handleLanguageChange = (locale: string) => {
-    // Remove current locale from pathname and add new locale
-    const segments = pathname.split("/").filter(Boolean)
-    if (languages.some((lang) => lang.code === segments[0])) {
-      segments.shift() // Remove current locale
+    // Handle null pathname case
+    if (!pathname) {
+      router.push(`/${locale}`);
+      setIsOpen(false);
+      return;
     }
-    const newPath = `/${locale}/${segments.join("/")}`
-    router.push(newPath)
-    setIsOpen(false)
-  }
+
+    // Remove current locale from pathname and add new locale
+    const segments = pathname.split("/").filter(Boolean);
+    if (languages.some((lang) => lang.code === segments[0])) {
+      segments.shift(); // Remove current locale
+    }
+    const newPath = `/${locale}/${segments.join("/")}`;
+    router.push(newPath);
+    setIsOpen(false);
+  };
 
   return (
     <div className="relative">
@@ -50,7 +58,9 @@ export function LanguageSwitcher({ currentLocale }: LanguageSwitcherProps) {
               key={language.code}
               onClick={() => handleLanguageChange(language.code)}
               className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-700 transition-colors flex items-center space-x-3 ${
-                currentLocale === language.code ? "text-emerald-400" : "text-gray-300"
+                currentLocale === language.code
+                  ? "text-emerald-400"
+                  : "text-gray-300"
               }`}
             >
               <span>{language.flag}</span>
@@ -60,5 +70,5 @@ export function LanguageSwitcher({ currentLocale }: LanguageSwitcherProps) {
         </div>
       )}
     </div>
-  )
+  );
 }

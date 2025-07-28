@@ -1,30 +1,68 @@
-"use client"
+"use client";
 
-import { useEffect, useState, useRef } from "react"
-import { ArrowUpRight, ArrowDownRight, Loader2 } from "lucide-react"
-import { translations, type Locale } from "@/lib/translations"
+import { useEffect, useState, useRef } from "react";
+import { ArrowUpRight, ArrowDownRight, Loader2 } from "lucide-react";
+import { translations, type Locale } from "@/lib/translations";
 
 type AssetData = {
-  asset: string
-  price: number
-  change: number
-  icon?: string
-}
+  asset: string;
+  price: number;
+  change: number;
+  icon?: string;
+};
 
 interface CryptoForexTableProps {
-  locale: Locale
+  locale: Locale;
 }
 
 export function CryptoForexTable({ locale }: CryptoForexTableProps) {
-  const [data, setData] = useState<AssetData[]>([])
-  const [mode, setMode] = useState<"crypto" | "forex">("crypto")
-  const [error, setError] = useState<string | null>(null)
-  const [isManualRefreshing, setIsManualRefreshing] = useState(false)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  const lastUpdateRef = useRef<Date | null>(null)
-  const tableRef = useRef<HTMLDivElement>(null)
+  const [data, setData] = useState<AssetData[]>([]);
+  const [mode, setMode] = useState<"crypto" | "forex">("crypto");
+  const [error, setError] = useState<string | null>(null);
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastUpdateRef = useRef<Date | null>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
 
-  const t = translations[locale]
+  // Add fallback handling for translations
+  const t = translations[locale] ||
+    translations["en"] || {
+      marketTracker: {
+        title: "Live Market Tracker",
+        subtitle: "Real-time {mode} market data",
+        cryptoMode: "Cryptocurrency",
+        forexMode: "Forex",
+        cryptoButton: "Crypto",
+        forexButton: "Forex",
+        cryptoMarket: "Cryptocurrency Market",
+        forexMarket: "Forex Market",
+        loading: "Loading market data...",
+        refresh: "Refresh",
+        lastUpdate: "Last updated:",
+        tableHeaders: {
+          asset: "Asset",
+          price: "Price",
+          change: "24h Change",
+        },
+        dataProviders: {
+          crypto: "Data provided by Coinbase",
+          forex: "Data provided by ExchangeRate-API",
+        },
+      },
+    };
+
+  // Add debug logging to help identify the issue
+  if (typeof window !== "undefined") {
+    console.log("CryptoForexTable - Current locale:", locale);
+    console.log(
+      "CryptoForexTable - Translation for locale:",
+      translations[locale]
+    );
+    console.log(
+      "CryptoForexTable - t.marketTracker exists:",
+      !!t.marketTracker
+    );
+  }
 
   // Crypto assets configuration
   const cryptoAssets = [
@@ -34,7 +72,7 @@ export function CryptoForexTable({ locale }: CryptoForexTableProps) {
     { id: "XRP", name: "XRP/USD", icon: "xrp.svg" },
     { id: "BNB", name: "BNB/USD", icon: "bnb.svg" },
     { id: "DOGE", name: "DOGE/USD", icon: "doge.svg" },
-  ]
+  ];
 
   // Forex pairs configuration
   const forexPairs = [
@@ -44,161 +82,164 @@ export function CryptoForexTable({ locale }: CryptoForexTableProps) {
     { pair: "AUDUSD", name: "AUD/USD", icon: "aud.png" },
     { pair: "USDCAD", name: "USD/CAD", icon: "cad.png" },
     { pair: "USDCHF", name: "USD/CHF", icon: "chf.png" },
-  ]
+  ];
 
   // Fetch crypto data from reliable API
   const fetchCryptoData = async (): Promise<AssetData[]> => {
     try {
-      const res = await fetch(`https://api.coinbase.com/v2/exchange-rates?currency=USD`)
+      const res = await fetch(
+        `https://api.coinbase.com/v2/exchange-rates?currency=USD`
+      );
 
-      if (!res.ok) throw new Error("Failed to fetch crypto data")
+      if (!res.ok) throw new Error("Failed to fetch crypto data");
 
-      const json = await res.json()
-      const rates = json.data.rates
+      const json = await res.json();
+      const rates = json.data.rates;
 
       return cryptoAssets.map((asset) => {
-        const rate = rates[asset.id]
-        const price = rate ? 1 / Number.parseFloat(rate) : 0
+        const rate = rates[asset.id];
+        const price = rate ? 1 / Number.parseFloat(rate) : 0;
 
         // Simulate price change for demo (in real app, use historical data)
-        const change = (Math.random() - 0.5) * 10
+        const change = (Math.random() - 0.5) * 10;
 
         return {
           asset: asset.name,
           price,
           change,
           icon: `/icons/${asset.icon}`,
-        }
-      })
+        };
+      });
     } catch (err) {
-      console.error("Crypto fetch failed:", err)
-      throw new Error("Failed to load crypto data")
+      console.error("Crypto fetch failed:", err);
+      throw new Error("Failed to load crypto data");
     }
-  }
+  };
 
   // Fetch forex data from reliable API
   const fetchForexData = async (): Promise<AssetData[]> => {
     try {
-      const res = await fetch(`https://api.exchangerate-api.com/v4/latest/USD`)
+      const res = await fetch(`https://api.exchangerate-api.com/v4/latest/USD`);
 
-      if (!res.ok) throw new Error("Failed to fetch forex data")
+      if (!res.ok) throw new Error("Failed to fetch forex data");
 
-      const json = await res.json()
-      const rates = json.rates
+      const json = await res.json();
+      const rates = json.rates;
 
       return forexPairs.map((pair) => {
-        let price = 0
+        let price = 0;
 
         // Handle direct and inverse pairs
         if (pair.pair.startsWith("USD")) {
-          const currency = pair.pair.slice(3)
-          price = rates[currency] || 0
+          const currency = pair.pair.slice(3);
+          price = rates[currency] || 0;
         } else {
-          const currency = pair.pair.slice(0, 3)
-          price = rates[currency] ? 1 / rates[currency] : 0
+          const currency = pair.pair.slice(0, 3);
+          price = rates[currency] ? 1 / rates[currency] : 0;
         }
 
         // Simulate price change for demo (in real app, use historical data)
-        const change = (Math.random() - 0.5) * 2
+        const change = (Math.random() - 0.5) * 2;
 
         return {
           asset: pair.name,
           price,
           change,
           icon: `/flags/${pair.icon}`,
-        }
-      })
+        };
+      });
     } catch (err) {
-      console.error("Forex fetch failed:", err)
-      throw new Error("Failed to load forex data")
+      console.error("Forex fetch failed:", err);
+      throw new Error("Failed to load forex data");
     }
-  }
+  };
 
   // Update data based on current mode (quietly in background)
   const updateData = async (isManualRefresh = false) => {
     if (isManualRefresh) {
-      setIsManualRefreshing(true)
+      setIsManualRefreshing(true);
     }
 
     try {
-      const newData = mode === "crypto" ? await fetchCryptoData() : await fetchForexData()
+      const newData =
+        mode === "crypto" ? await fetchCryptoData() : await fetchForexData();
 
       // Smoothly update numbers without full reload
       setData((prevData) => {
         return newData.map((newItem, index) => {
-          const prevItem = prevData[index] || newItem
+          const prevItem = prevData[index] || newItem;
           return {
             ...newItem,
             // Preserve previous values during animation
             price: prevItem.price,
             change: prevItem.change,
-          }
-        })
-      })
+          };
+        });
+      });
 
       // Animate number changes after a short delay
       setTimeout(() => {
-        setData(newData)
-        lastUpdateRef.current = new Date()
-      }, 50)
+        setData(newData);
+        lastUpdateRef.current = new Date();
+      }, 50);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unknown error occurred")
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
     } finally {
       if (isManualRefresh) {
-        setIsManualRefreshing(false)
+        setIsManualRefreshing(false);
       }
     }
-  }
+  };
 
   // Initialize data fetching
   useEffect(() => {
-    updateData() // Initial fetch
+    updateData(); // Initial fetch
 
     // Set up background polling
     intervalRef.current = setInterval(() => {
-      updateData()
-    }, 15000) // Update every 15 seconds
+      updateData();
+    }, 15000); // Update every 15 seconds
 
     return () => {
       if (intervalRef.current) {
-        clearInterval(intervalRef.current)
+        clearInterval(intervalRef.current);
       }
-    }
-  }, [mode])
+    };
+  }, [mode]);
 
   // Remove scrollbar on hover
   useEffect(() => {
-    const table = tableRef.current
-    if (!table) return
+    const table = tableRef.current;
+    if (!table) return;
 
     const handleMouseEnter = () => {
-      table.classList.add("hide-scrollbar")
-    }
+      table.classList.add("hide-scrollbar");
+    };
 
     const handleMouseLeave = () => {
-      table.classList.remove("hide-scrollbar")
-    }
+      table.classList.remove("hide-scrollbar");
+    };
 
-    table.addEventListener("mouseenter", handleMouseEnter)
-    table.addEventListener("mouseleave", handleMouseLeave)
+    table.addEventListener("mouseenter", handleMouseEnter);
+    table.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
-      table.removeEventListener("mouseenter", handleMouseEnter)
-      table.removeEventListener("mouseleave", handleMouseLeave)
-    }
-  }, [])
+      table.removeEventListener("mouseenter", handleMouseEnter);
+      table.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, []);
 
   const getModeText = () => {
-    return mode === "crypto" ? t.marketTracker.cryptoMode : t.marketTracker.forexMode
-  }
+    return mode === "crypto"
+      ? t.marketTracker.cryptoMode
+      : t.marketTracker.forexMode;
+  };
 
   return (
     <section className="bg-gradient-to-r from-[#000a12] to-[#02141f] py-10">
       <div className="bg-gradient-to-br from-gray-900 to-black p-4 sm:p-6 mt-8 rounded-3xl shadow-2xl border border-gray-800 text-white max-w-5xl sm:max-w-6xl mx-auto">
-        {/* 
-        Give the header a higher z-index so the buttons never get overlapped by 
-        the table or anything else on mobile. 
-      */}
         <div className="relative z-10 mb-4 sm:mb-6 text-center px-2 sm:px-0">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-1 sm:mb-2 bg-gradient-to-r from-cyan-400 to-indigo-500 text-transparent bg-clip-text">
             {t.marketTracker.title}
@@ -231,7 +272,9 @@ export function CryptoForexTable({ locale }: CryptoForexTableProps) {
           </div>
 
           <h2 className="text-lg sm:text-xl md:text-2xl mt-1 sm:mt-2 font-semibold tracking-wide text-cyan-400">
-            {mode === "crypto" ? t.marketTracker.cryptoMarket : t.marketTracker.forexMarket}
+            {mode === "crypto"
+              ? t.marketTracker.cryptoMarket
+              : t.marketTracker.forexMarket}
           </h2>
         </div>
 
@@ -241,13 +284,22 @@ export function CryptoForexTable({ locale }: CryptoForexTableProps) {
           </div>
         )}
 
-        <div ref={tableRef} className="overflow-x-auto hide-scrollbar-on-hover transition-all">
+        <div
+          ref={tableRef}
+          className="overflow-x-auto hide-scrollbar-on-hover transition-all"
+        >
           <table className="w-full text-left border-separate border-spacing-y-2 sm:border-spacing-y-3">
             <thead>
               <tr className="text-gray-500 text-xs sm:text-sm uppercase">
-                <th className="px-2 sm:px-4 py-2">{t.marketTracker.tableHeaders.asset}</th>
-                <th className="px-2 sm:px-4 py-2">{t.marketTracker.tableHeaders.price}</th>
-                <th className="px-2 sm:px-4 py-2">{t.marketTracker.tableHeaders.change}</th>
+                <th className="px-2 sm:px-4 py-2">
+                  {t.marketTracker.tableHeaders.asset}
+                </th>
+                <th className="px-2 sm:px-4 py-2">
+                  {t.marketTracker.tableHeaders.price}
+                </th>
+                <th className="px-2 sm:px-4 py-2">
+                  {t.marketTracker.tableHeaders.change}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -256,13 +308,15 @@ export function CryptoForexTable({ locale }: CryptoForexTableProps) {
                   <td colSpan={3} className="text-center py-6 sm:py-8">
                     <div className="flex justify-center items-center gap-2">
                       <Loader2 className="animate-spin text-cyan-400" />
-                      <span className="text-sm sm:text-base">{t.marketTracker.loading}</span>
+                      <span className="text-sm sm:text-base">
+                        {t.marketTracker.loading}
+                      </span>
                     </div>
                   </td>
                 </tr>
               ) : (
                 data.map((item, i) => {
-                  const isUp = item.change >= 0
+                  const isUp = item.change >= 0;
                   return (
                     <tr
                       key={i}
@@ -278,7 +332,9 @@ export function CryptoForexTable({ locale }: CryptoForexTableProps) {
                             />
                           </div>
                         )}
-                        <span className="font-bold text-sm sm:text-base">{item.asset}</span>
+                        <span className="font-bold text-sm sm:text-base">
+                          {item.asset}
+                        </span>
                       </td>
                       <td className="py-2 sm:py-4 px-2 sm:px-4 text-base sm:text-lg font-semibold transition-all duration-500 ease-in-out">
                         {typeof item.price === "number"
@@ -298,15 +354,20 @@ export function CryptoForexTable({ locale }: CryptoForexTableProps) {
                           isUp ? "text-green-400" : "text-red-400"
                         } text-sm sm:text-base`}
                       >
-                        {isUp ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+                        {isUp ? (
+                          <ArrowUpRight size={16} />
+                        ) : (
+                          <ArrowDownRight size={16} />
+                        )}
                         <span>
-                          {typeof item.change === "number" && !isNaN(item.change)
+                          {typeof item.change === "number" &&
+                          !isNaN(item.change)
                             ? `${isUp ? "+" : ""}${item.change.toFixed(2)}%`
                             : "—"}
                         </span>
                       </td>
                     </tr>
-                  )
+                  );
                 })
               )}
             </tbody>
@@ -315,9 +376,16 @@ export function CryptoForexTable({ locale }: CryptoForexTableProps) {
 
         <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row justify-between items-center text-xs sm:text-sm text-gray-500 px-2 sm:px-0 space-y-2 sm:space-y-0">
           <div>
-            <p>{mode === "crypto" ? t.marketTracker.dataProviders.crypto : t.marketTracker.dataProviders.forex}</p>
+            <p>
+              {mode === "crypto"
+                ? t.marketTracker.dataProviders.crypto
+                : t.marketTracker.dataProviders.forex}
+            </p>
             <p className="mt-1">
-              {t.marketTracker.lastUpdate} {lastUpdateRef.current ? lastUpdateRef.current.toLocaleTimeString() : "N/A"}
+              {t.marketTracker.lastUpdate}{" "}
+              {lastUpdateRef.current
+                ? lastUpdateRef.current.toLocaleTimeString()
+                : "N/A"}
             </p>
           </div>
           <button
@@ -325,7 +393,11 @@ export function CryptoForexTable({ locale }: CryptoForexTableProps) {
             disabled={isManualRefreshing}
             className="mt-1 sm:mt-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
           >
-            {isManualRefreshing ? <Loader2 className="animate-spin" size={14} /> : <ArrowUpRight size={14} />}
+            {isManualRefreshing ? (
+              <Loader2 className="animate-spin" size={14} />
+            ) : (
+              <ArrowUpRight size={14} />
+            )}
             <span>{t.marketTracker.refresh}</span>
           </button>
         </div>
@@ -355,5 +427,5 @@ export function CryptoForexTable({ locale }: CryptoForexTableProps) {
         `}</style>
       </div>
     </section>
-  )
+  );
 }

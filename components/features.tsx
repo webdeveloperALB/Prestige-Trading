@@ -11,7 +11,41 @@ interface FeaturesProps {
 
 export function Features({ locale }: FeaturesProps) {
   const router = useRouter();
-  const t = translations[locale];
+
+  // Add fallback handling for translations
+  const t = translations[locale] ||
+    translations["en"] || {
+      features: {
+        title: "Our",
+        titleHighlight: "Services",
+        subtitle:
+          "Discover our comprehensive trading solutions designed for success",
+        services: {
+          aiTradingBot: {
+            title: "AI Trading Bot",
+            description:
+              "Advanced artificial intelligence algorithms that analyze market patterns and execute trades automatically with precision and speed.",
+          },
+          forexGoldSignals: {
+            title: "Forex & Gold Signals",
+            description:
+              "Professional trading signals for forex and gold markets with detailed analysis and entry/exit points.",
+          },
+          cryptoSignals: {
+            title: "Crypto Signals",
+            description:
+              "Cryptocurrency trading signals covering major digital assets with technical analysis and market insights.",
+          },
+        },
+      },
+    };
+
+  // Add debug logging to help identify the issue
+  if (typeof window !== "undefined") {
+    console.log("Features - Current locale:", locale);
+    console.log("Features - Translation for locale:", translations[locale]);
+    console.log("Features - t.features exists:", !!t.features);
+  }
 
   const features = [
     {

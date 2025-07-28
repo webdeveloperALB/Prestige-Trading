@@ -25,7 +25,69 @@ export function Hero({ locale }: HeroProps) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isMountedRef = useRef(true);
 
-  const t = translations[locale];
+  // Add fallback handling for translations
+  const t = translations[locale] ||
+    translations["en"] || {
+      hero: {
+        title: "Advanced Trading Platform",
+        subtitle: "Trade with Confidence",
+        description:
+          "Experience professional trading with our advanced platform",
+        ctaButton: "Start Trading",
+        metrics: {
+          successRate: {
+            value: "94%",
+            label: "Success Rate",
+            sublabel: "Proven Results",
+          },
+          assetsManaged: {
+            value: "$2.5B+",
+            label: "Assets Managed",
+            sublabel: "Under Management",
+          },
+          eliteTraders: {
+            value: "50K+",
+            label: "Elite Traders",
+            sublabel: "Active Users",
+          },
+          marketLeader: {
+            value: "15+",
+            label: "Years",
+            sublabel: "Market Leader",
+          },
+        },
+        features: {
+          aiPowered: {
+            title: "AI-Powered",
+            description: "Advanced algorithms",
+            highlight: "Smart Trading",
+          },
+          security: {
+            title: "Bank-Level Security",
+            description: "Your funds are protected",
+            highlight: "Secure",
+          },
+          execution: {
+            title: "Lightning Fast",
+            description: "Instant execution",
+            highlight: "Fast",
+          },
+        },
+        trust: {
+          sipcInsured: "SIPC Insured",
+          established: "Est. 2008",
+          pwcAudited: "PwC Audited",
+          iso27001: "ISO 27001",
+        },
+      },
+    };
+
+  // Add debug logging to help identify the issue
+  if (typeof window !== "undefined") {
+    console.log("Hero - Current locale:", locale);
+    console.log("Hero - Translation for locale:", translations[locale]);
+    console.log("Hero - t.hero exists:", !!t.hero);
+  }
 
   // Memoize trust metrics to prevent recreation on every render
   const trustMetrics = useCallback(
@@ -197,6 +259,7 @@ export function Hero({ locale }: HeroProps) {
                 width={260}
                 height={260}
                 className="object-contain"
+                priority={true}
               />
             </div>
           </div>
@@ -245,6 +308,7 @@ export function Hero({ locale }: HeroProps) {
                     width={3000}
                     height={2000}
                     className="w-full h-auto object-contain rounded-[20px] animate-float"
+                    priority={true}
                   />
                 </div>
               </div>

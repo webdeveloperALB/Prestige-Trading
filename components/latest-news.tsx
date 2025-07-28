@@ -1,59 +1,81 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent } from "@/components/ui/card"
-import { Loader2, AlertTriangle } from "lucide-react"
-import { translations, type Locale } from "@/lib/translations"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader2, AlertTriangle } from "lucide-react";
+import { translations, type Locale } from "@/lib/translations";
 
 type NewsArticle = {
-  title: string
-  url: string
-  source: { name: string }
-  publishedAt: string
-  description?: string
-  urlToImage?: string | null
-}
+  title: string;
+  url: string;
+  source: { name: string };
+  publishedAt: string;
+  description?: string;
+  urlToImage?: string | null;
+};
 
-const API_URL = "/api/news-mix"
+const API_URL = "/api/news-mix";
 
 interface LatestNewsProps {
-  locale: Locale
+  locale: Locale;
 }
 
 export function LatestNews({ locale }: LatestNewsProps) {
-  const router = useRouter()
-  const [articles, setArticles] = useState<NewsArticle[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
+  const router = useRouter();
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const t = translations[locale]
+  // Add fallback handling for translations
+  const t = translations[locale] ||
+    translations["en"] || {
+      latestNews: {
+        title: "Latest",
+        titleHighlight: "Market",
+        subtitle: "News",
+        loading: "Loading news...",
+        error: "Failed to load news",
+        source: "Source:",
+        publishedAt: "Published:",
+        readMore: "Read more",
+      },
+    };
+
+  // Add debug logging to help identify the issue
+  if (typeof window !== "undefined") {
+    console.log("LatestNews - Current locale:", locale);
+    console.log("LatestNews - Translation for locale:", translations[locale]);
+    console.log("LatestNews - t.latestNews exists:", !!t.latestNews);
+  }
 
   useEffect(() => {
     async function fetchNews() {
-      setLoading(true)
-      setError("")
+      setLoading(true);
+      setError("");
       try {
-        const res = await fetch(API_URL)
-        if (!res.ok) throw new Error(t.latestNews.error)
-        const data = await res.json()
-        setArticles(data)
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error(t.latestNews.error);
+        const data = await res.json();
+        setArticles(data);
       } catch (err: any) {
-        setError(err.message || t.latestNews.error)
+        setError(err.message || t.latestNews.error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    fetchNews()
-    const interval = setInterval(fetchNews, 60000)
-    return () => clearInterval(interval)
-  }, [t.latestNews.error])
+    fetchNews();
+    const interval = setInterval(fetchNews, 60000);
+    return () => clearInterval(interval);
+  }, [t.latestNews.error]);
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleString(locale === "en" ? "en-US" : locale === "it" ? "it-IT" : "de-DE")
-  }
+    const date = new Date(dateString);
+    return date.toLocaleString(
+      locale === "en" ? "en-US" : locale === "it" ? "it-IT" : "de-DE"
+    );
+  };
 
   return (
     <section className="py-20 bg-gradient-to-r from-[#000a12] to-[#02141f]">
@@ -87,26 +109,36 @@ export function LatestNews({ locale }: LatestNewsProps) {
                 {article.urlToImage && (
                   <div className="relative overflow-hidden">
                     <img
-                      src={article.urlToImage || "/placeholder.svg?height=160&width=400&query=news"}
+                      src={
+                        article.urlToImage ||
+                        "/placeholder.svg?height=160&width=400&query=news"
+                      }
                       alt={article.title}
                       className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
                       onError={(e) => {
-                        e.currentTarget.style.display = "none"
+                        e.currentTarget.style.display = "none";
                       }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
                 )}
-                <CardContent className={`p-4 ${!article.urlToImage ? "pt-6" : ""}`}>
+                <CardContent
+                  className={`p-4 ${!article.urlToImage ? "pt-6" : ""}`}
+                >
                   <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-300 transition-colors duration-300 line-clamp-2">
                     {article.title}
                   </h3>
                   <div className="space-y-1 mb-2">
                     <p className="text-sm text-gray-300">
-                      <span className="font-medium">{t.latestNews.source}</span> {article.source.name}
+                      <span className="font-medium">{t.latestNews.source}</span>{" "}
+                      {article.source.name}
                     </p>
                     <p className="text-xs text-gray-400">
-                      <span className="font-medium">{t.latestNews.publishedAt}</span> {formatDate(article.publishedAt)}
+                      <span className="font-medium">
+                        {t.latestNews.publishedAt}
+                      </span>{" "}
+                      {formatDate(article.publishedAt)}
                     </p>
                   </div>
                   {article.description && (
@@ -130,5 +162,5 @@ export function LatestNews({ locale }: LatestNewsProps) {
         )}
       </div>
     </section>
-  )
+  );
 }

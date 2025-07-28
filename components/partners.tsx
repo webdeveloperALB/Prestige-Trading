@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useEffect, useRef } from "react"
-import Image from "next/image"
-import { translations, type Locale } from "@/lib/translations"
+import { useEffect, useRef } from "react";
+import Image from "next/image";
+import { translations, type Locale } from "@/lib/translations";
 
 const partners = [
   { name: "AWS", logo: "/partners/aws2.svg" },
@@ -29,41 +29,60 @@ const partners = [
   { name: "MoonPay", logo: "/partners/moonpay.jpeg" },
   { name: "Ramp", logo: "/partners/ramp.svg" },
   { name: "Simplex", logo: "/partners/simplex.png" },
-]
+];
 
 interface PartnersScrollProps {
-  locale: Locale
+  locale: Locale;
 }
 
 export function PartnersScroll({ locale }: PartnersScrollProps) {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const t = translations[locale]
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Add fallback handling for translations
+  const t = translations[locale] ||
+    translations["en"] || {
+      partners: {
+        title: "Trusted by Leading Partners",
+      },
+    };
+
+  // Add debug logging to help identify the issue
+  if (typeof window !== "undefined") {
+    console.log("Partners - Current locale:", locale);
+    console.log("Partners - Translation for locale:", translations[locale]);
+    console.log("Partners - t.partners exists:", !!t.partners);
+  }
 
   useEffect(() => {
-    const scrollContainer = scrollRef.current
-    if (!scrollContainer) return
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
 
-    let animationFrame: number
-    const scrollSpeed = 0.5
+    let animationFrame: number;
+    const scrollSpeed = 0.5;
 
     const animate = () => {
-      scrollContainer.scrollLeft += scrollSpeed
+      scrollContainer.scrollLeft += scrollSpeed;
 
       if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 3) {
-        scrollContainer.scrollLeft = 0
+        scrollContainer.scrollLeft = 0;
       }
 
-      animationFrame = requestAnimationFrame(animate)
-    }
+      animationFrame = requestAnimationFrame(animate);
+    };
 
-    animate()
-    return () => cancelAnimationFrame(animationFrame)
-  }, [])
+    animate();
+    return () => cancelAnimationFrame(animationFrame);
+  }, []);
 
   return (
     <section className="bg-gradient-to-r from-[#000a12] to-[#02141f] py-12 border-t border-slate-800">
-      <h2 className="text-center text-white text-2xl font-bold mb-8">{t.partners.title}</h2>
-      <div ref={scrollRef} className="overflow-hidden whitespace-nowrap relative">
+      <h2 className="text-center text-white text-2xl font-bold mb-8">
+        {t.partners.title}
+      </h2>
+      <div
+        ref={scrollRef}
+        className="overflow-hidden whitespace-nowrap relative"
+      >
         <div className="inline-flex gap-10 px-6 animate-none">
           {[...partners, ...partners, ...partners].map((partner, i) => (
             <div
@@ -76,11 +95,12 @@ export function PartnersScroll({ locale }: PartnersScrollProps) {
                 width={120}
                 height={60}
                 className="object-contain h-full"
+                loading="lazy"
               />
             </div>
           ))}
         </div>
       </div>
     </section>
-  )
+  );
 }

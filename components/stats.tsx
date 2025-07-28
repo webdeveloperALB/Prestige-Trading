@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { translations, type Locale } from "@/lib/translations"
+import { useEffect, useState } from "react";
+import { translations, type Locale } from "@/lib/translations";
 
 interface StatsProps {
-  locale: Locale
+  locale: Locale;
 }
 
 export function Stats({ locale }: StatsProps) {
@@ -13,9 +13,30 @@ export function Stats({ locale }: StatsProps) {
     trades: 0,
     success: 0,
     countries: 0,
-  })
+  });
 
-  const t = translations[locale]
+  // Add fallback handling for translations
+  const t = translations[locale] ||
+    translations["en"] || {
+      stats: {
+        title: "Our",
+        titleHighlight: "Performance",
+        description: "Trusted by traders worldwide with proven results",
+        metrics: {
+          winRate: "Win Rate",
+          activeMembers: "Active Members",
+          signalsPerWeek: "Signals Per Week",
+          countries: "Countries",
+        },
+      },
+    };
+
+  // Add debug logging to help identify the issue
+  if (typeof window !== "undefined") {
+    console.log("Stats - Current locale:", locale);
+    console.log("Stats - Translation for locale:", translations[locale]);
+    console.log("Stats - t.stats exists:", !!t.stats);
+  }
 
   useEffect(() => {
     const targets = {
@@ -23,27 +44,27 @@ export function Stats({ locale }: StatsProps) {
       trades: 10000,
       success: 3,
       countries: 120,
-    }
-    const duration = 2000
-    const steps = 60
+    };
+    const duration = 2000;
+    const steps = 60;
 
     const intervals = Object.keys(targets).map((key) => {
-      const target = targets[key as keyof typeof targets]
-      const increment = target / steps
-      let current = 0
+      const target = targets[key as keyof typeof targets];
+      const increment = target / steps;
+      let current = 0;
 
       return setInterval(() => {
-        current += increment
+        current += increment;
         if (current >= target) {
-          current = target
-          clearInterval(intervals[Object.keys(targets).indexOf(key)])
+          current = target;
+          clearInterval(intervals[Object.keys(targets).indexOf(key)]);
         }
-        setCounts((prev) => ({ ...prev, [key]: Math.floor(current) }))
-      }, duration / steps)
-    })
+        setCounts((prev) => ({ ...prev, [key]: Math.floor(current) }));
+      }, duration / steps);
+    });
 
-    return () => intervals.forEach(clearInterval)
-  }, [])
+    return () => intervals.forEach(clearInterval);
+  }, []);
 
   const stats = [
     {
@@ -66,7 +87,7 @@ export function Stats({ locale }: StatsProps) {
       value: counts.countries,
       suffix: "+",
     },
-  ]
+  ];
 
   return (
     <section className="py-4 bg-gradient-to-r from-[#000a12] to-[#02141f]">
@@ -78,7 +99,9 @@ export function Stats({ locale }: StatsProps) {
               {t.stats.titleHighlight}
             </span>
           </h2>
-          <p className="text-gray-400 text-xl max-w-3xl mx-auto">{t.stats.description}</p>
+          <p className="text-gray-400 text-xl max-w-3xl mx-auto">
+            {t.stats.description}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
@@ -91,11 +114,13 @@ export function Stats({ locale }: StatsProps) {
                 <span className="text-blue-300">{stat.value}</span>
                 {stat.suffix}
               </div>
-              <div className="text-gray-400 text-sm md:text-base">{stat.label}</div>
+              <div className="text-gray-400 text-sm md:text-base">
+                {stat.label}
+              </div>
             </div>
           ))}
         </div>
       </div>
     </section>
-  )
+  );
 }

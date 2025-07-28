@@ -255,13 +255,13 @@ export default function About({ params }: AboutPageProps) {
         <div className="max-w-4xl mx-auto">
           <Tabs defaultValue="mission" onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-3 mb-6 bg-blue-900/20">
-              <TabsTrigger value="mission" className="data-[state=active]:bg-blue-600">
+              <TabsTrigger value="mission" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-white">
                 {t.about.philosophy.tabs.mission}
               </TabsTrigger>
-              <TabsTrigger value="vision" className="data-[state=active]:bg-blue-600">
+              <TabsTrigger value="vision" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-white">
                 {t.about.philosophy.tabs.vision}
               </TabsTrigger>
-              <TabsTrigger value="values" className="data-[state=active]:bg-blue-600">
+              <TabsTrigger value="values" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-white">
                 {t.about.philosophy.tabs.values}
               </TabsTrigger>
             </TabsList>

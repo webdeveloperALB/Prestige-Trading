@@ -1,19 +1,62 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { FaFacebook, FaTelegramPlane, FaLinkedin, FaYoutube } from "react-icons/fa"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { translations, type Locale } from "@/lib/translations"
+import type React from "react";
+import {
+  FaFacebook,
+  FaTelegramPlane,
+  FaLinkedin,
+  FaYoutube,
+} from "react-icons/fa";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { translations, type Locale } from "@/lib/translations";
 
 interface FooterProps {
-  locale: Locale
+  locale: Locale;
 }
 
 const Footer: React.FC<FooterProps> = ({ locale }) => {
-  const t = translations[locale]
-  const currentYear = new Date().getFullYear()
+  // Add fallback handling for translations
+  const t = translations[locale] ||
+    translations["en"] || {
+      footer: {
+        companyName: "Prestige Trading Academy",
+        companyDescription:
+          "Advanced trading platform with AI-powered solutions for professional traders worldwide.",
+        platform: "Platform",
+        legal: "Legal",
+        stayUpdated: "Stay Updated",
+        newsletterDescription:
+          "Subscribe to our newsletter for the latest trading insights and market updates.",
+        emailPlaceholder: "Enter your email",
+        subscribe: "Subscribe",
+        copyright: "© {year} Prestige Trading Academy. All rights reserved.",
+        madeWith: "Made with ❤️ for traders worldwide",
+        navigation: {
+          home: "Home",
+          about: "About",
+          services: "Services",
+          subscriptionTiers: "Subscription Tiers",
+          university: "University",
+        },
+        legalLinks: {
+          privacyPolicy: "Privacy Policy",
+          termsOfUse: "Terms of Use",
+          security: "Security",
+          compliance: "Compliance",
+        },
+      },
+    };
+
+  // Add debug logging to help identify the issue
+  if (typeof window !== "undefined") {
+    console.log("Footer - Current locale:", locale);
+    console.log("Footer - Translation for locale:", translations[locale]);
+    console.log("Footer - t.footer exists:", !!t.footer);
+  }
+
+  const currentYear = new Date().getFullYear();
 
   const socialLinks = [
     {
@@ -44,22 +87,28 @@ const Footer: React.FC<FooterProps> = ({ locale }) => {
       hoverColor: "hover:text-red-500",
       ariaLabel: "YouTube",
     },
-  ]
+  ];
 
   const navigationLinks = [
     { name: t.footer.navigation.home, href: `/${locale}` },
     { name: t.footer.navigation.about, href: `/${locale}/about` },
     { name: t.footer.navigation.services, href: `/${locale}/services` },
-    { name: t.footer.navigation.subscriptionTiers, href: `/${locale}/subscriptiontiers` },
+    {
+      name: t.footer.navigation.subscriptionTiers,
+      href: `/${locale}/subscriptiontiers`,
+    },
     { name: t.footer.navigation.university, href: `/${locale}/university` },
-  ]
+  ];
 
   const legalLinks = [
-    { name: t.footer.legalLinks.privacyPolicy, href: `/${locale}/privacypolicy` },
+    {
+      name: t.footer.legalLinks.privacyPolicy,
+      href: `/${locale}/privacypolicy`,
+    },
     { name: t.footer.legalLinks.termsOfUse, href: `/${locale}/termsofuse` },
     { name: t.footer.legalLinks.security, href: `/${locale}/security` },
     { name: t.footer.legalLinks.compliance, href: `/${locale}/compliance` },
-  ]
+  ];
 
   return (
     <footer className="bg-gray-900 text-white pt-12 pb-6 px-6 md:px-16">
@@ -67,11 +116,19 @@ const Footer: React.FC<FooterProps> = ({ locale }) => {
         {/* Company Info */}
         <div>
           <h2 className="text-2xl font-bold mb-4">{t.footer.companyName}</h2>
-          <p className="text-sm text-gray-400 mb-4">{t.footer.companyDescription}</p>
+          <p className="text-sm text-gray-400 mb-4">
+            {t.footer.companyDescription}
+          </p>
           <div className="flex space-x-4 mt-2">
             {socialLinks.map((social) => (
-              <Link key={social.name} href={social.href} aria-label={social.ariaLabel}>
-                <social.icon className={`w-5 h-5 transition-colors duration-300 ${social.hoverColor}`} />
+              <Link
+                key={social.name}
+                href={social.href}
+                aria-label={social.ariaLabel}
+              >
+                <social.icon
+                  className={`w-5 h-5 transition-colors duration-300 ${social.hoverColor}`}
+                />
               </Link>
             ))}
           </div>
@@ -83,7 +140,10 @@ const Footer: React.FC<FooterProps> = ({ locale }) => {
           <ul className="text-gray-400 space-y-2 text-sm">
             {navigationLinks.map((item) => (
               <li key={item.name}>
-                <Link href={item.href} className="hover:text-white transition-colors duration-300 hover:underline">
+                <Link
+                  href={item.href}
+                  className="hover:text-white transition-colors duration-300 hover:underline"
+                >
                   {item.name}
                 </Link>
               </li>
@@ -97,7 +157,10 @@ const Footer: React.FC<FooterProps> = ({ locale }) => {
           <ul className="text-gray-400 space-y-2 text-sm">
             {legalLinks.map((item) => (
               <li key={item.name}>
-                <Link href={item.href} className="hover:text-white transition-colors duration-300 hover:underline">
+                <Link
+                  href={item.href}
+                  className="hover:text-white transition-colors duration-300 hover:underline"
+                >
                   {item.name}
                 </Link>
               </li>
@@ -108,7 +171,9 @@ const Footer: React.FC<FooterProps> = ({ locale }) => {
         {/* Newsletter Subscription */}
         <div>
           <h3 className="text-lg font-semibold mb-3">{t.footer.stayUpdated}</h3>
-          <p className="text-sm text-gray-400 mb-3">{t.footer.newsletterDescription}</p>
+          <p className="text-sm text-gray-400 mb-3">
+            {t.footer.newsletterDescription}
+          </p>
           <form className="flex flex-col sm:flex-row gap-2">
             <Input
               type="email"
@@ -133,7 +198,7 @@ const Footer: React.FC<FooterProps> = ({ locale }) => {
         <p>{t.footer.madeWith}</p>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;
