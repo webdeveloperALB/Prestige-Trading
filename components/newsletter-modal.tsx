@@ -1,142 +1,150 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Mail, CheckCircle, AlertCircle } from "lucide-react";
-import { subscribeToNewsletter } from "../actions/newsletter";
+import { useState, useEffect } from "react";
+import { useActionState } from "react";
+import { subscribeToNewsletter } from "@/actions/newsletter";
+import { X, Mail, Clock } from "lucide-react";
 
 interface NewsletterModalProps {
   isOpen: boolean;
   onClose: () => void;
+  isAutoPopup?: boolean;
 }
 
-export function NewsletterModal({ isOpen, onClose }: NewsletterModalProps) {
+export default function NewsletterModal({
+  isOpen,
+  onClose,
+  isAutoPopup = false,
+}: NewsletterModalProps) {
+  const [state, action, isPending] = useActionState(
+    subscribeToNewsletter,
+    null
+  );
   const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [result, setResult] = useState<{
-    success: boolean;
-    message: string;
-  } | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setResult(null);
-
-    const formData = new FormData();
-    formData.append("email", email);
-
-    try {
-      const response = await subscribeToNewsletter(formData);
-      setResult(response);
-
-      if (response.success) {
-        // Close modal after 3 seconds on success
-        setTimeout(() => {
-          onClose();
-          setResult(null);
-          setEmail("");
-        }, 3000);
-      }
-    } catch (error) {
-      setResult({
-        success: false,
-        message: "An unexpected error occurred. Please try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
+  // Clear form on successful submission
+  useEffect(() => {
+    if (state?.success) {
+      setEmail("");
+      // Close modal after success
+      setTimeout(() => onClose(), 2000);
     }
-  };
+  }, [state?.success, onClose]);
 
-  const handleClose = () => {
-    onClose();
-    setResult(null);
-    setEmail("");
-  };
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-primary" />
-            Subscribe to Our Newsletter
-          </DialogTitle>
-          <DialogDescription>
-            Join Prestige Trading Academy's newsletter for exclusive trading
-            insights, market analysis, and educational content delivered to your
-            inbox.
-          </DialogDescription>
-        </DialogHeader>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg w-full max-w-md mx-4 relative animate-in fade-in-0 zoom-in-95 duration-300">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center">
+            <div className="bg-blue-100 p-2 rounded-full mr-3">
+              <Mail className="h-6 w-6 text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Stay Updated!</h2>
+              {isAutoPopup && (
+                <div className="flex items-center text-sm text-gray-500 mt-1">
+                  <Clock className="h-4 w-4 mr-1" />
+                  <span>You've been browsing for a while</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+            aria-label="Close newsletter modal"
+            title="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
 
-        {!result?.success ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
+        {/* Content */}
+        <div className="p-6">
+          <p className="text-gray-600 mb-6">
+            {isAutoPopup
+              ? "Don't miss out on our latest updates! Subscribe to our newsletter and get exclusive content delivered to your inbox."
+              : "Get the latest updates and exclusive content delivered to your inbox."}
+          </p>
+
+          <form action={action} className="space-y-4">
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Email Address
+              </label>
+              <input
                 type="email"
+                id="email"
+                name="email"
                 placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full"
-                disabled={isSubmitting}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                disabled={isPending}
               />
             </div>
 
-            {result && !result.success && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
-                <AlertCircle className="w-4 h-4 text-red-600" />
-                <p className="text-sm text-red-700">{result.message}</p>
-              </div>
-            )}
-
-            <div className="flex gap-2 pt-2">
-              <Button type="submit" disabled={isSubmitting} className="flex-1">
-                {isSubmitting ? "Subscribing..." : "Subscribe"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-            </div>
-
-            <p className="text-xs text-muted-foreground text-center">
-              We respect your privacy. Unsubscribe at any time. Emails sent to
-              news@prestigetradingacademy.uk
-            </p>
+            <button
+              type="submit"
+              disabled={isPending || !email}
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
+            >
+              {isPending ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Subscribing...
+                </div>
+              ) : (
+                "Subscribe to Newsletter"
+              )}
+            </button>
           </form>
-        ) : (
-          <div className="text-center py-6">
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+
+          {state && (
+            <div
+              className={`mt-4 p-4 rounded-lg border ${
+                state.success
+                  ? "bg-green-50 text-green-700 border-green-200"
+                  : "bg-red-50 text-red-700 border-red-200"
+              }`}
+            >
+              <div className="flex items-center">
+                {state.success ? (
+                  <div className="flex-shrink-0 w-5 h-5 text-green-400 mr-2">
+                    ✓
+                  </div>
+                ) : (
+                  <div className="flex-shrink-0 w-5 h-5 text-red-400 mr-2">
+                    ⚠
+                  </div>
+                )}
+                <span className="text-sm font-medium">{state.message}</span>
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-green-600 mb-2">
-              Successfully Subscribed!
-            </h3>
-            <p className="text-muted-foreground mb-2">{result.message}</p>
-            <p className="text-xs text-muted-foreground">
-              Welcome to Prestige Trading Academy's newsletter community!
+          )}
+
+          <p className="text-xs text-gray-500 mt-4 text-center">
+            We respect your privacy. Unsubscribe at any time.
+          </p>
+        </div>
+
+        {/* Special message for auto-popup */}
+        {isAutoPopup && (
+          <div className="bg-blue-50 px-6 py-3 rounded-b-lg border-t border-blue-100">
+            <p className="text-xs text-blue-600 text-center">
+              💡 This popup appeared because you've been exploring our site. We
+              thought you might be interested!
             </p>
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }

@@ -6,7 +6,7 @@ import { Features } from "../../components/features";
 import { PartnersScroll } from "../../components/partners";
 import { CryptoForexTable } from "../../components/crypto-forex-table";
 import { LatestNews } from "../../components/latest-news";
-import { NewsletterWrapper } from "../../components/newsletter-wrapper";
+import NewsletterWrapper from "../../components/newsletter-wrapper";
 
 interface PageProps {
   params: Promise<{ lang: Locale }>;
