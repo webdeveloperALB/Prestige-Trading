@@ -47,13 +47,14 @@ async function getPosts() {
 export default async function UniversityPage({
   params,
 }: {
-  params: { lang: string };
+  params: Promise<{ lang: string }>;
 }) {
+  const { lang } = await params;
   const posts = await getPosts();
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <UniversityClient posts={posts} lang={params.lang} />
+      <UniversityClient posts={posts} lang={lang} />
     </Suspense>
   );
 }

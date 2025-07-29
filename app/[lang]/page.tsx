@@ -6,6 +6,7 @@ import { Features } from "../../components/features";
 import { PartnersScroll } from "../../components/partners";
 import { CryptoForexTable } from "../../components/crypto-forex-table";
 import { LatestNews } from "../../components/latest-news";
+import { NewsletterWrapper } from "../../components/newsletter-wrapper";
 
 interface PageProps {
   params: Promise<{ lang: Locale }>;
@@ -23,6 +24,7 @@ export default async function Page({ params }: PageProps) {
       <PartnersScroll locale={lang} />
       <CryptoForexTable locale={lang} />
       <LatestNews locale={lang} />
+      <NewsletterWrapper />
     </div>
   );
 }

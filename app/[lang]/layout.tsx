@@ -8,23 +8,21 @@ interface RootLayoutProps {
   params: Promise<{ lang: Locale }>;
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return [{ lang: "en" }, { lang: "it" }, { lang: "de" }];
 }
 
-export default async function RootLayout({
+export default async function LangLayout({
   children,
   params,
 }: RootLayoutProps) {
   const { lang } = await params;
 
   return (
-    <html lang={lang}>
-      <body>
-        <Navbar locale={lang} />
-        <main>{children}</main>
-        <Footer locale={lang} />
-      </body>
-    </html>
+    <>
+      <Navbar locale={lang} />
+      <main>{children}</main>
+      <Footer locale={lang} />
+    </>
   );
 }
