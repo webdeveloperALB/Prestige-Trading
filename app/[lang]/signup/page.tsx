@@ -27,6 +27,7 @@ export default function SignUp({ params }: SignUpProps) {
   const t = translations[lang];
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Include referralNode in state so it can be saved
   const [formData, setFormData] = useState({
@@ -48,8 +49,11 @@ export default function SignUp({ params }: SignUpProps) {
     e.preventDefault();
     setIsLoading(true);
 
+    console.log("Form submission started");
+
     // 1) Validate referral code
     if (formData.referralNode.trim() !== UNIVERSAL_REFERRAL) {
+      console.log("Invalid referral code");
       toast({
         title: t.signup.messages.genericError,
         description: t.signup.messages.invalidReferralCode,
@@ -61,6 +65,7 @@ export default function SignUp({ params }: SignUpProps) {
 
     // 2) Validate passwords match
     if (formData.password !== formData.confirmPassword) {
+      console.log("Passwords don't match");
       toast({
         title: t.signup.messages.genericError,
         description: t.signup.messages.passwordMismatch,
@@ -70,8 +75,35 @@ export default function SignUp({ params }: SignUpProps) {
       return;
     }
 
+    // 3) Validate password length
+    if (formData.password.length < 8) {
+      console.log("Password too short");
+      toast({
+        title: t.signup.messages.genericError,
+        description: "Password must be at least 8 characters long",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    // 4) Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      console.log("Invalid email format");
+      toast({
+        title: t.signup.messages.genericError,
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      // 3) Send all six fields to /api/signup
+      console.log("Sending request to API");
+
+      // 5) Send all six fields to /api/signup
       const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -85,7 +117,11 @@ export default function SignUp({ params }: SignUpProps) {
         }),
       });
 
+      console.log("API response status:", res.status);
+
       if (res.ok) {
+        const result = await res.json();
+        console.log("Success:", result);
         toast({
           title: t.signup.messages.success,
           description: t.signup.messages.accountSaved,
@@ -99,14 +135,16 @@ export default function SignUp({ params }: SignUpProps) {
           confirmPassword: "",
         });
       } else {
-        const { error } = await res.json();
+        const errorData = await res.json();
+        console.log("API error:", errorData);
         toast({
           title: t.signup.messages.genericError,
-          description: error || t.signup.messages.genericError,
+          description: errorData.error || t.signup.messages.genericError,
           variant: "destructive",
         });
       }
-    } catch {
+    } catch (error) {
+      console.error("Network error:", error);
       toast({
         title: t.signup.messages.genericError,
         description: t.signup.messages.networkError,
@@ -141,7 +179,8 @@ export default function SignUp({ params }: SignUpProps) {
               {/* Referral Code */}
               <div className="space-y-2">
                 <Label htmlFor="referralNode" className="text-white">
-                  {t.signup.form.referralCode}
+                  {t.signup.form.referralCode}{" "}
+                  <span className="text-red-400">*</span>
                 </Label>
                 <Input
                   id="referralNode"
@@ -150,7 +189,7 @@ export default function SignUp({ params }: SignUpProps) {
                   placeholder={t.signup.form.referralCodePlaceholder}
                   value={formData.referralNode}
                   onChange={handleInputChange}
-                  className="border-none bg-slate-800/50 text-white placeholder-gray-400"
+                  className="border-none bg-slate-800/50 text-white placeholder-gray-400 focus:bg-slate-800/70"
                   required
                 />
               </div>
@@ -158,7 +197,8 @@ export default function SignUp({ params }: SignUpProps) {
               {/* Full Name */}
               <div className="space-y-2">
                 <Label htmlFor="fullName" className="text-gray-300">
-                  {t.signup.form.fullName}
+                  {t.signup.form.fullName}{" "}
+                  <span className="text-red-400">*</span>
                 </Label>
                 <Input
                   id="fullName"
@@ -167,7 +207,7 @@ export default function SignUp({ params }: SignUpProps) {
                   placeholder={t.signup.form.fullNamePlaceholder}
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  className="border-none bg-slate-800/50 text-white placeholder-gray-400"
+                  className="border-none bg-slate-800/50 text-white placeholder-gray-400 focus:bg-slate-800/70"
                   required
                 />
               </div>
@@ -175,7 +215,7 @@ export default function SignUp({ params }: SignUpProps) {
               {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-300">
-                  {t.signup.form.email}
+                  {t.signup.form.email} <span className="text-red-400">*</span>
                 </Label>
                 <Input
                   id="email"
@@ -184,7 +224,7 @@ export default function SignUp({ params }: SignUpProps) {
                   placeholder={t.signup.form.emailPlaceholder}
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="border-none bg-slate-800/50 text-white placeholder-gray-400"
+                  className="border-none bg-slate-800/50 text-white placeholder-gray-400 focus:bg-slate-800/70"
                   required
                 />
               </div>
@@ -192,7 +232,7 @@ export default function SignUp({ params }: SignUpProps) {
               {/* Phone */}
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-gray-300">
-                  {t.signup.form.phone}
+                  {t.signup.form.phone} <span className="text-red-400">*</span>
                 </Label>
                 <Input
                   id="phone"
@@ -201,7 +241,7 @@ export default function SignUp({ params }: SignUpProps) {
                   placeholder={t.signup.form.phonePlaceholder}
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="border-none bg-slate-800/50 text-white placeholder-gray-400"
+                  className="border-none bg-slate-800/50 text-white placeholder-gray-400 focus:bg-slate-800/70"
                   required
                 />
               </div>
@@ -209,7 +249,8 @@ export default function SignUp({ params }: SignUpProps) {
               {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-gray-300">
-                  {t.signup.form.password}
+                  {t.signup.form.password}{" "}
+                  <span className="text-red-400">*</span>
                 </Label>
                 <div className="relative">
                   <Input
@@ -219,13 +260,14 @@ export default function SignUp({ params }: SignUpProps) {
                     placeholder={t.signup.form.passwordPlaceholder}
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="border-none bg-slate-800/50 text-white placeholder-gray-400 pr-10"
+                    className="border-none bg-slate-800/50 text-white placeholder-gray-400 pr-10 focus:bg-slate-800/70"
                     required
+                    minLength={8}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-purple-400"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-purple-400 transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -239,18 +281,32 @@ export default function SignUp({ params }: SignUpProps) {
               {/* Confirm Password */}
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword" className="text-gray-300">
-                  {t.signup.form.confirmPassword}
+                  {t.signup.form.confirmPassword}{" "}
+                  <span className="text-red-400">*</span>
                 </Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  placeholder={t.signup.form.confirmPasswordPlaceholder}
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className="border-none bg-slate-800/50 text-white placeholder-gray-400"
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder={t.signup.form.confirmPasswordPlaceholder}
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className="border-none bg-slate-800/50 text-white placeholder-gray-400 pr-10 focus:bg-slate-800/70"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-purple-400 transition-colors"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {/* Security Features */}
@@ -262,7 +318,7 @@ export default function SignUp({ params }: SignUpProps) {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-[#0a4235] hover:bg-[#0a4235]"
+                className="w-full bg-[#0a4235] hover:bg-[#0c5142] transition-colors"
                 disabled={isLoading}
               >
                 {isLoading
